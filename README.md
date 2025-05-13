@@ -8,42 +8,46 @@ This is a simple example of a Kafka producer and consumer implementation in Go.
 2. Docker installed
 3. `github.com/Shopify/sarama` package
 
-## Setup
+## Setup Docker ( Kafka and Zookeeper )
 
-1. First, set up Kafka and Zookeeper using Docker:
-   ```bash
-   # Create a network for Kafka and Zookeeper
-   docker network create kafka-network
+1. Setup network
+```bash
+docker network create kafka-network
+```
 
-   # Start Zookeeper
-   docker run -d --name zookeeper --network kafka-network -p 2181:2181 wurstmeister/zookeeper
+2. Start zookeeper
 
-   # Start Kafka
-   docker run -d --name kafka --network kafka-network \
-     -p 9092:9092 \
-     -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 \
-     -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
-     -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 \
-     -e KAFKA_ADVERTISED_HOST_NAME=localhost \
-     wurstmeister/kafka
+```bash
+docker run -d --name zookeeper --network kafka-network -p 2181:2181 wurstmeister/zookeeper
+```
 
-   # Verify containers are running
-   docker ps
-   ```
+3. Start Kafka with the correct configuration
 
-2. Install Go dependencies:
+```bash
+docker run -d --name kafka --network kafka-network -p 9092:9092 -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 -e KAFKA_ADVERTISED_HOST_NAME=localhost wurstmeister/kafka
+```
+
+4. Verify that both containers are running
+
+```bash
+docker ps
+```
+
+
+
+## Running the Application
+
+1. Install Go dependencies:
    ```bash
    go mod download
    ```
 
-## Running the Application
-
-1. First, start the consumer in one terminal:
+2. First, start the consumer in one terminal:
    ```bash
    go run consumer/main.go
    ```
 
-2. Then, start the producer in another terminal:
+3. Then, start the producer in another terminal:
    ```bash
    go run producer/main.go
    ```
@@ -70,32 +74,8 @@ Message received: Topic=test-topic, Partition=0, Offset=1, Value=Message 2
 ...
 ```
 
-### Docker
 
-create network
-```bash
-docker network create kafka-network
-```
-
-start zookeeper
-
-```bash
-docker run -d --name zookeeper --network kafka-network -p 2181:2181 wurstmeister/zookeeper
-```
-
-start Kafka with the correct configuration
-
-```bash
-docker run -d --name kafka --network kafka-network -p 9092:9092 -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 -e KAFKA_ADVERTISED_HOST_NAME=localhost wurstmeister/kafka
-```
-
-verify that both containers are running
-
-```bash
-docker ps
-```
-
-#### Summary 
+#### Summary for Docker, Kafka and Zookeeper
 
 1. Created a Docker network for Kafka and Zookeeper to communicate:
    - Allows containers to communicate using container names as hostnames
@@ -125,6 +105,8 @@ If you need to restart the Kafka setup:
 # Stop and remove existing containers
 docker stop kafka zookeeper
 docker rm kafka zookeeper
+```
 
-# Then follow the setup steps again
-``` 
+## Maintainer
+
+[gnsalok](https://github.com/gnsalok)
