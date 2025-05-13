@@ -1,17 +1,37 @@
-# kafka-go
+# Kafka Go Example
 
 This is a simple example of a Kafka producer and consumer implementation in Go.
 
 ## Prerequisites
 
 1. Go 1.21 or later
-2. Apache Kafka running locally (or update broker addresses in code)
+2. Docker installed
 3. `github.com/Shopify/sarama` package
 
 ## Setup
 
-1. Start Kafka and Zookeeper locally
-2. Install dependencies:
+1. First, set up Kafka and Zookeeper using Docker:
+   ```bash
+   # Create a network for Kafka and Zookeeper
+   docker network create kafka-network
+
+   # Start Zookeeper
+   docker run -d --name zookeeper --network kafka-network -p 2181:2181 wurstmeister/zookeeper
+
+   # Start Kafka
+   docker run -d --name kafka --network kafka-network \
+     -p 9092:9092 \
+     -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 \
+     -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
+     -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 \
+     -e KAFKA_ADVERTISED_HOST_NAME=localhost \
+     wurstmeister/kafka
+
+   # Verify containers are running
+   docker ps
+   ```
+
+2. Install Go dependencies:
    ```bash
    go mod download
    ```
@@ -50,15 +70,61 @@ Message received: Topic=test-topic, Partition=0, Offset=1, Value=Message 2
 ...
 ```
 
-## Docker
+### Docker
 
-To run Kafka using Docker:
+create network
 ```bash
-This error occurs because Kafka is not running or is not accessible at localhost:9092. Let me help you fix this:
+docker network create kafka-network
+```
 
-1. First, let's make sure Kafka is running. I'll provide a Docker command to start both Kafka and Zookeeper:
+start zookeeper
 
 ```bash
-docker run -d --name kafka-broker -p 2181:2181 -p 9092:9092 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 -e KAFKA_BROKER_ID=1 -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 -e KAFKA_ZOOKEEPER_CONNECT=localhost:2181 wurstmeister/kafka:latest
+docker run -d --name zookeeper --network kafka-network -p 2181:2181 wurstmeister/zookeeper
+```
 
+start Kafka with the correct configuration
+
+```bash
+docker run -d --name kafka --network kafka-network -p 9092:9092 -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 -e KAFKA_ADVERTISED_HOST_NAME=localhost wurstmeister/kafka
+```
+
+verify that both containers are running
+
+```bash
+docker ps
+```
+
+#### Summary 
+
+1. Created a Docker network for Kafka and Zookeeper to communicate:
+   - Allows containers to communicate using container names as hostnames
+   - Isolates Kafka traffic from other Docker networks
+
+2. Started Zookeeper container:
+   - Runs on port 2181
+   - Provides coordination service for Kafka
+   - Uses wurstmeister/zookeeper image
+
+3. Started Kafka container with proper configuration:
+   - Connected to Zookeeper on zookeeper:2181
+   - Set up listeners on 0.0.0.0:9092 to accept all connections
+   - Exposed port 9092 for external access
+   - Set advertised host to localhost for client connections
+   - Uses wurstmeister/kafka image
+
+4. Verified containers are running:
+   - Used docker ps to check container status
+   - Confirmed both Kafka and Zookeeper are up
+
+#### Troubleshooting
+
+If you need to restart the Kafka setup:
+
+```bash
+# Stop and remove existing containers
+docker stop kafka zookeeper
+docker rm kafka zookeeper
+
+# Then follow the setup steps again
 ``` 

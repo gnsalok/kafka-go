@@ -17,7 +17,7 @@ func main() {
 	config.Consumer.Offsets.Initial = sarama.OffsetOldest
 
 	// Create a new consumer
-	brokers := []string{"localhost:9092"}
+	brokers := []string{"localhost:9092"} // broker is the servers that hold the queue
 	topic := "test-topic"
 	group := "test-group"
 
