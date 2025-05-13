@@ -75,7 +75,7 @@ Message received: Topic=test-topic, Partition=0, Offset=1, Value=Message 2
 ```
 
 
-#### Summary for Docker, Kafka and Zookeeper
+## Summary for Docker, Kafka and Zookeeper
 
 1. Created a Docker network for Kafka and Zookeeper to communicate:
    - Allows containers to communicate using container names as hostnames
@@ -97,7 +97,7 @@ Message received: Topic=test-topic, Partition=0, Offset=1, Value=Message 2
    - Used docker ps to check container status
    - Confirmed both Kafka and Zookeeper are up
 
-#### Troubleshooting
+## Troubleshooting
 
 If you need to restart the Kafka setup:
 
